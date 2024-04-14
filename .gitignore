@@ -1,0 +1,19 @@
+env/
+.env
+.cache/
+.streamlit/
+notebook_rag.ipynb
+pages/99_DocumentGPT2.py
+pages/98_DocumentGPT3.py
+pages/97_QuizGPT2.py
+pages/96_SiteGPT2.py
+.cache/
+notebook_origin.ipynb
+Home.py
+notebook_quiz.ipynb
+notebook_metting.ipynb
+notebook_investor.ipynb
+notebook_XZ Utils backdoor.ipynb
+notebook.ipynb
+main.py
+

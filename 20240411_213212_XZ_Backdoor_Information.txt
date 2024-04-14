@@ -1,0 +1,210 @@
+Malicious software backdoor on Linux
+
+XZ Utils backdoor
+
+Previous XZ logo contributed by Jia Tan
+
+CVE identifier(s)CVE-2024-3094
+Date discovered29 March 2024; 13 days ago (2024-03-29)
+Date patched9 April 2024; 2 days ago (2024-04-09) [1]
+DiscovererAndres Freund
+Affected softwarexz / liblzma library
+Websitetukaani.org/xz-backdoor/
+
+On 29 March 2024, software developer Andres Freund reported that he had found a maliciously introduced backdoor in the Linux utility xz within the liblzma library in versions 5.6.0 and 5.6.1 released in February 2024.[2]
+While xz is commonly present in most Linux distributions, the backdoor only targeted Debian- and RPM-based systems running on the x86-64 architecture.[citation needed] At the time of discovery the backdoored version had not yet been widely deployed to production systems, but was present in development versions of major distributions.[3]
+The backdoor gives an attacker who possesses a specific Ed448 private key remote code execution capabilities on the affected Linux system. The issue has been assigned a CVSS score of 10.0, the highest possible score.[4][5][6]
+
+Background
+Microsoft employee and PostgreSQL developer Andres Freund reported the backdoor after investigating a performance regression in Debian Sid.[7] Freund noticed that SSH connections were generating an unexpectedly high amount of CPU usage as well as causing errors in Valgrind,[8] a memory debugging tool.[9] Freund reported his finding to Openwall Project's open source security mailing list,[10] which brought it to the attention of various software vendors.[9] There is evidence that the attacker made efforts to obfuscate the code,[11][12] as the backdoor consists of multiple stages that act together.[13]
+Once the compromised version is incorporated into the operating system, it alters the behavior of OpenSSH's SSH server daemon by abusing the systemd library, allowing the attacker to gain the same level of access as any authorized administrator.[13][9] According to the analysis by Red Hat, the backdoor can "enable a malicious actor to break sshd authentication and gain unauthorized access to the entire system remotely".[14]
+A subsequent investigation found that the campaign to insert the backdoor into the XZ Utils project was a culmination of approximately three years of effort by a user going by the name Jia Tan and the nickname JiaT75 to gain access to a position of trust within the project. After a period of pressure on the founder and head maintainer to hand over the control of the project via apparent sock puppetry Jia Tan gained the position of co-maintainer of XZ Utils and was able to sign off on version 5.6.0, which introduced the backdoor, and version 5.6.1, which patched some anomalous behavior that can be apparent during software testing of the operating system.[9] Some of the suspected sock puppetry pseudonyms are Jigar Kumar, krygorin4545, and misoeater91. It is suspected that the names Jia Tan, as well as the supposed code author Hans Jansen (for versions 5.6.0 and 5.6.1) are simply names invented by participants of the campaign. Neither have any sort of visible public presence in software development beyond the short few years of the campaign.[15][16] The backdoor was notable for its level of sophistication and for the fact that the perpetrator practiced a high level of operational security for a long period of time while working to attain a position of trust. American security researcher Dave Aitel has suggested that it fits the pattern attributable to APT29, an advanced persistent threat actor believed to be working on behalf of the Russian SVR.[17] Others[who?] have suggested that it could be any state actor or a non-state actor of considerable resources.[18]
+
+Mechanism
+The malicious code is known to be in 5.6.0 and 5.6.1 releases of the XZ Utils software package. The exploit remains dormant unless a specific third-party patch of the SSH server is used. Under the right circumstances this interference could potentially enable a malicious actor to break sshd authentication and gain unauthorized access to the entire system remotely.[14] The malicious mechanism consists of two compressed test files that contain the malicious binary code. These files are available in the git repository, but remain dormant unless extracted and injected into the program.[6] The code uses the glibc IFUNC mechanism to replace an existing function in OpenSSH called RSA_public_decrypt with a malicious version. OpenSSH normally does not load liblzma, but a common third-party patch used by several Linux distributions causes it to load libsystemd, which in turn loads lzma.[6] A modified version of build-to-host.m4 was included in the release tar file uploaded on GitHub, which extracts a script that performs the actual injection into liblzma. This modified m4 file was not present in the git repository; it was only available from tar files released by the maintainer separate from git.[6] The script appears to perform the injection only when the system is being built on an x86-64 Linux system that uses glibc and GCC and is being built via dpkg or rpm.[6]
+
+Response
+Remediation
+The US federal agency responsible for cyber security and infrastructure, the Cybersecurity and Infrastructure Security Agency, has issued a security advisory recommending that the affected devices should roll back to a previous uncompromised version.[19] Linux software vendors, including Red Hat, SUSE, and Debian, have mirrored the CISA advisory, and reverted the updates for the affected packages to older versions.[14][20][21] GitHub disabled the mirrors for the xz repository before subsequently restoring them.[22][23]
+Canonical postponed the beta release of Ubuntu 24.04 LTS and its flavours by a week and opted for a complete binary rebuild of all the distribution's packages.[24] Although the stable version of Ubuntu was unaffected, upstream versions were. This precautionary measure was taken because Canonical could not guarantee by the original release deadline that the discovered backdoor did not affect additional packages during compilation.[25][26]
+
+Broader response
+Computer scientist Alex Stamos opined that "this could have been the most widespread and effective backdoor ever planted in any software product", noting that had the backdoor remained undetected, it would have "given its creators a master key to any of the hundreds of millions of computers around the world that run SSH".[27] In addition, the incident also started a discussion regarding the viability of having critical pieces of cyberinfrastructure depend on unpaid volunteers.[28]
+
+References
+Digest Finance. 29 (1). 28 March 2024. doi:10.24891/df.29.1. ISSN 2073-8005 http://dx.doi.org/10.24891/df.29.1. {{cite journal}}: Missing or empty |title= (help)
+Corbet, Jonathan. "A backdoor in xz". LWN. Archived from the original on 1 April 2024. Retrieved 2 April 2024.
+"CVE-2024-3094". National Vulnerability Database. NIST. Archived from the original on 2 April 2024. Retrieved 2 April 2024.
+Gatlan, Sergiu. "Red Hat warns of backdoor in XZ tools used by most Linux distros". BleepingComputer. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+Akamai Security Intelligence Group (1 April 2024). "XZ Utils Backdoor – Everything You Need to Know, and What You Can Do". Archived from the original on 2 April 2024. Retrieved 2 April 2024.
+a b c d e James, Sam. "xz-utils backdoor situation (CVE-2024-3094)". GitHub. Archived from the original on 2 April 2024. Retrieved 2 April 2024.
+Zorz, Zeljka (29 March 2024). "Beware! Backdoor found in XZ utilities used by many Linux distros (CVE-2024-3094)". Help Net Security. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+"oss-security - backdoor in upstream xz/liblzma leading to ssh server compromise". www.openwall.com. Archived from the original on 1 April 2024. Retrieved 8 April 2024.
+a b c d Goodin, Dan (1 April 2024). "What we know about the xz Utils backdoor that almost infected the world". Ars Technica. Archived from the original on 1 April 2024. Retrieved 1 April 2024.
+"oss-security - backdoor in upstream xz/liblzma leading to ssh server compromise". www.openwall.com. Archived from the original on 1 April 2024. Retrieved 3 April 2024.
+Larabel, Michael. "XZ Struck By Malicious Code That Could Allow Unauthorized Remote System Access". Phoronix. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+O'Donnell-Welch, Lindsey (29 March 2024). "Red Hat, CISA Warn of XZ Utils Backdoor". Decipher. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+a b Claburn, Thomas. "Malicious backdoor spotted in Linux compression library xz". The Register. Archived from the original on 1 April 2024. Retrieved 1 April 2024.
+a b "Urgent security alert for Fedora 41 and Fedora Rawhide users". Red Hat. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+"Watching xz unfold from afar". 31 March 2024. Archived from the original on 6 April 2024. Retrieved 6 April 2024.
+"Timeline summary of the backdoor attack on XZ Utils". 3 April 2024. Archived from the original on 10 April 2024. Retrieved 7 April 2024.
+Greenberg, Andy. "The Mystery of 'Jia Tan,' the XZ Backdoor Mastermind". Wired. Archived from the original on 3 April 2024. Retrieved 3 April 2024.
+Claburn, Thomas. "Malicious xz backdoor reveals fragility of open source". The Register. Archived from the original on 8 April 2024. Retrieved 8 April 2024.
+"Reported Supply Chain Compromise Affecting XZ Utils Data Compression Library, CVE-2024-3094". CISA. 29 March 2024. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+"SUSE addresses supply chain attack against xz compression library". SUSE Communities. SUSE. Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+Salvatore, Bonaccorso (29 March 2024). "[SECURITY] [DSA 5649-1] xz-utils security update". debian-security-announce (Mailing list). Archived from the original on 29 March 2024. Retrieved 29 March 2024.
+Larabel, Michael (29 March 2024). "GitHub Disables The XZ Repository Following Today's Malicious Disclosure". Phoronix. Archived from the original on 31 March 2024. Retrieved 31 March 2024.
+"The Git repositories of XZ projects are available on GitHub again | Hacker News". news.ycombinator.com. Retrieved 10 April 2024.
+"Noble Numbat Beta delayed (xz/liblzma security update)". Ubuntu Community Hub. 3 April 2024. Archived from the original on 10 April 2024. Retrieved 10 April 2024.
+Larabel, Michael. "Ubuntu 24.04 Beta Delayed Due To XZ Nightmare". www.phoronix.com. Archived from the original on 10 April 2024. Retrieved 10 April 2024.
+Sneddon, Joey (3 April 2024). "Ubuntu 24.04 Beta Delayed Due to Security Issue". OMG! Ubuntu. Archived from the original on 8 April 2024. Retrieved 10 April 2024.
+Roose, Kevin. "Did One Guy Just Stop a Huge Cyberattack?". The New York Times. Archived from the original on 4 April 2024. Retrieved 4 April 2024.
+Khalid, Amrita (2 April 2024). "How one volunteer stopped a backdoor from exposing Linux systems worldwide". The Verge. Archived from the original on 4 April 2024. Retrieved 4 April 2024.
+
+External links
+Official website
+Andres Freund's report to the Openwall oss-security mailing list
+Portal: Internet
+vteHacking in the 2020s
+← 2010s
+Timeline
+2030s →
+Major incidents
+2020
+BlueLeaks
+Twitter account hijacking
+European Medicines Agency data breach
+Nintendo data leak
+United States federal government data breach
+EasyJet data breach
+Vastaamo data breach
+2021
+Microsoft Exchange Server breach
+Ivanti Pulse Connect Secure data breach
+Colonial Pipeline ransomware attack
+Health Service Executive ransomware attack
+Waikato District Health Board ransomware attack
+JBS S.A. ransomware attack
+Kaseya VSA ransomware attack
+Transnet ransomware attack
+Epik data breach
+FBI email hack
+National Rifle Association ransomware attack
+Banco de Oro hack
+2022
+Ukraine cyberattacks
+Red Cross data breach
+Anonymous and the Russian invasion of Ukraine
+Viasat hack
+DDoS attacks on Romania
+Costa Rican ransomware attack
+LastPass vault theft
+Shanghai police database leak
+Grand Theft Auto VI content leak
+2023
+Munster Technological University ransomware attack
+Evide data breach
+MOVEit data breach
+Insomniac Games data breach
+Polish railway cyberattack
+British Library cyberattack
+2024
+XZ Utils backdoor
+Groups
+Anonymous
+associated events
+Anonymous Sudan
+Berserk Bear
+Clop
+Cozy Bear
+DarkMatter
+DarkSide
+Dridex
+Ghostwriter
+GnosticPlayers
+Guacamaya
+Hafnium
+IT Army of Ukraine
+Killnet
+Lapsus$
+LightBasin
+Lockbit
+REvil
+Sandworm
+Sakura Samurai
+ShinyHunters
+Wizard Spider
+Individuals
+Graham Ivan Clark
+maia arson crimew
+Kirtaner
+Major vulnerabilities
+publicly disclosed
+SMBGhost (2020)
+Thunderspy (2020)
+PrintNightmare (2021)
+FORCEDENTRY (2021)
+Log4Shell (2021)
+Account pre-hijacking (2022)
+Retbleed (2022)
+Downfall (2023)
+LogoFAIL (2023)
+Reptar (2023)
+Terrapin (2023)
+GoFetch (2024)
+Malware
+2020
+Adrozek
+Drovorub
+2021
+Predator
+2022
+Cyclops Blink
+Pipedream
+
+
+
+
+
+Retrieved from "https://en.wikipedia.org/w/index.php?title=XZ_Utils_backdoor&oldid=1218372760"
+Categories: 2024 in computingMarch 2024 eventsHacking in the 2020sComputer security exploitsInternet securitySocial engineering (computer security)Trojan horsesHidden categories: CS1 errors: missing titleCS1 errors: bare URLArticles with short descriptionShort description is different from WikidataUse dmy dates from April 2024Use Australian English from March 2024All Wikipedia articles written in Australian EnglishAll articles with unsourced statementsArticles with unsourced statements from April 2024All articles with specifically marked weasel-worded phrasesArticles with specifically marked weasel-worded phrases from April 2024
+
+
+
+
+
+
+ This page was last edited on 11 April 2024, at 09:56 (UTC).
+Text is available under the Creative Commons Attribution-ShareAlike License 4.0; additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+
+
+Privacy policy
+About Wikipedia
+Disclaimers
+Contact Wikipedia
+Code of Conduct
+Developers
+Statistics
+Cookie statement
+Mobile view
+
+
+
+
+
+
+
+
+
+
+
+
+
+Toggle limited content width
+
+
+
+
+
+
+

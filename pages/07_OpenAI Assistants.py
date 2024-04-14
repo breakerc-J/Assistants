@@ -158,5 +158,5 @@ def agent_invoke(input):
 
 with st.sidebar:
     st.write(
-        "https://github.com/breakerc-J/site_gpt/blob/master/pages/04_SiteGPT.py"
+        "https://github.com/breakerc-J/Assistants/commit/e60427b53c60b89522ebe49fd7337eb57d7dcd48"
     )
