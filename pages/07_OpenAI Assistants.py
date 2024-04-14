@@ -13,15 +13,32 @@ from langchain.prompts import PromptTemplate
 from langchain.document_loaders import WebBaseLoader
 from langchain.schema.runnable import RunnablePassthrough
 
+api_key = st.session_state.get("api_key", "")
 
-st.set_page_config(
-    page_title="OpenAI Assistants",
-    page_icon="",
-)
+with st.sidebar:
+    api_key = st.text_input("OpenAI_API_key", type="password")
+    st.session_state["api_key"] = api_key
+    if api_key:
+        st.caption("API key is set.")
+    else:
+        st.caption("Please enter your API key ⬆️.")
+
+if api_key == "":
+    st.error("Please enter your OpenAI API key")
+    st.stop()
+else:
+    llm = ChatOpenAI(
+        temperature=0.1,
+        api_key=api_key,
+        streaming=True,
+    )
+
 
 llm = ChatOpenAI(
     temperature=0.1,
+    api_key=api_key,
 )
+
 
 class WikipediaSearchAgent(BaseTool):
     name = "WikipediaSearchAgent"
@@ -94,25 +111,6 @@ st.markdown(
 
     """
 )
-api_key = st.session_state.get("api_key", "")
-
-with st.sidebar:
-    api_key = st.text_input("OpenAI_API_key", type="password")
-    st.session_state["api_key"] = api_key
-    if api_key:
-        st.caption("API key is set.")
-    else:
-        st.caption("Please enter your API key ⬆️.")
-
-if api_key == "":
-    st.error("Please enter your OpenAI API key")
-    st.stop()
-else:
-    llm = ChatOpenAI(
-        temperature=0.1,
-        api_key=api_key,
-        streaming=True,
-    )
 
 st.subheader("Run your OpenAI Assistants :)")
 guide1, guide2 = st.columns([4, 1])
@@ -136,7 +134,7 @@ def agent_invoke(input):
     agent = initialize_agent(
         llm=llm,
         verbose=True,
-        agent=AgentType.OPENAI_FUNCTIONS,
+        agent=AgentType.OPENAI_FUNCTIONS, api_key=api_key,
         handle_parsing_errors=True,
         tools=[
             WikipediaSearchAgent(),
@@ -144,7 +142,6 @@ def agent_invoke(input):
             LoadWebsiteTool(),
             SaveToFileTool(),
         ],
-        api_key=api_key,
     )
 
     prompt = PromptTemplate.from_template(
