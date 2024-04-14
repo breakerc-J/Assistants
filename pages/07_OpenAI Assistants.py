@@ -13,9 +13,7 @@ from langchain.prompts import PromptTemplate
 from langchain.document_loaders import WebBaseLoader
 from langchain.schema.runnable import RunnablePassthrough
 
-llm = ChatOpenAI(
-    temperature=0.1,
-)
+
 
 class WikipediaSearchAgent(BaseTool):
     name = "WikipediaSearchAgent"
@@ -89,6 +87,11 @@ st.markdown(
     """
 )
 api_key = st.session_state.get("api_key", "")
+
+llm = ChatOpenAI(
+    temperature=0.1,
+    api_key=api_key,
+)
 
 with st.sidebar:
     api_key = st.text_input("OpenAI_API_key", type="password")
