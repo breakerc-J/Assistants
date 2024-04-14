@@ -39,6 +39,16 @@ llm = ChatOpenAI(
     api_key=api_key,
 )
 
+st.title("OpenAI Assistants")
+st.markdown(
+    """
+    This is research AI agent.
+            
+    The agent should try to search in Wikipedia or DuckDuckGo about "Research about the XZ backdoor" and extract it's content, then it should finish by saving the research to a .txt file.
+
+    """
+)
+
 
 class WikipediaSearchAgent(BaseTool):
     name = "WikipediaSearchAgent"
@@ -101,16 +111,6 @@ class SaveToFileTool(BaseTool):
         return f"Text saved to {file_path}"
 
 
-
-st.title("OpenAI Assistants")
-st.markdown(
-    """
-    This is research AI agent.
-            
-    The agent should try to search in Wikipedia or DuckDuckGo about "Research about the XZ backdoor" and extract it's content, then it should finish by saving the research to a .txt file.
-
-    """
-)
 
 st.subheader("Run your OpenAI Assistants :)")
 guide1, guide2 = st.columns([4, 1])
