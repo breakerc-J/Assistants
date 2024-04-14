@@ -13,6 +13,17 @@ from langchain.prompts import PromptTemplate
 from langchain.document_loaders import WebBaseLoader
 from langchain.schema.runnable import RunnablePassthrough
 
+st.title("OpenAI Assistants")
+st.markdown(
+    """
+    This is research AI agent.
+            
+    The agent should try to search in Wikipedia or DuckDuckGo about "Research about the XZ backdoor" and extract it's content, then it should finish by saving the research to a .txt file.
+
+    """
+)
+
+
 api_key = st.session_state.get("api_key", "")
 
 with st.sidebar:
@@ -39,15 +50,6 @@ llm = ChatOpenAI(
     api_key=api_key,
 )
 
-st.title("OpenAI Assistants")
-st.markdown(
-    """
-    This is research AI agent.
-            
-    The agent should try to search in Wikipedia or DuckDuckGo about "Research about the XZ backdoor" and extract it's content, then it should finish by saving the research to a .txt file.
-
-    """
-)
 
 
 class WikipediaSearchAgent(BaseTool):
